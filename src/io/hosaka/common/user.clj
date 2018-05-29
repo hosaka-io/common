@@ -3,6 +3,8 @@
             [clojure.tools.logging :as log]
             [clojure.core.cache :as cache]
             [clojure.java.io :refer [reader]]
+            [clojure.spec.alpha :as s]
+            [io.hosaka.common.spec :as specs]
             [clojure.set :as set]
             [aleph.http :as http]
             [manifold.deferred :as d]
@@ -21,7 +23,12 @@
     (assoc this
            :user-cache nil)))
 
+(s/def ::user-cache-ttl ::specs/positive-int)
+(s/def ::user-url ::specs/non-empty-string)
+(s/def ::user-env (s/keys :req-un [::user-url ::user-cache-ttl]))
+
 (defn new-user [env]
+  {:pre [(s/valid? ::user-env env)]}
   (map->User {:env (select-keys env [:user-cache-ttl :user-url])}))
 
 (defn parse-stream [stream]

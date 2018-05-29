@@ -13,11 +13,11 @@
     (get-db-health-sql (get-connection db))))
 
 
-(defrecord Health [db env boot-time]
+(defrecord Health [db env boot-time rt]
   component/Lifecycle
 
   (start [this]
-    (assoc this :boot-time (l/local-now)))
+    (assoc this :boot-time (l/local-now) :rt (Runtime/getRuntime)))
 
   (stop [this]
     this))
@@ -27,7 +27,7 @@
    (map->Health {:env env})
    [:db]))
 
-(defn get-health [{:keys [db env boot-time]}]
+(defn get-health [{:keys [db env boot-time rt]}]
   (let [n (l/local-now)]
     (-> (get-db-health db)
         (d/chain #(if (or
@@ -37,6 +37,8 @@
                     {:health "HEALTHY" :db %1}))
         (d/catch (fn [e] {:health "UNHEALTHY" :db (.getMessage e)}))
         (d/chain #(merge (assoc %
+                                :free-memory (.freeMemory rt)
+                                :total-memory (.totalMemory rt)
                                 :boot-time (l/format-local-time boot-time :date-time)
                                 :current-time (l/format-local-time n :date-time)
                                 :up-time (t/in-seconds (t/interval boot-time n)))
