@@ -42,6 +42,12 @@
                                 :boot-time (l/format-local-time boot-time :date-time)
                                 :current-time (l/format-local-time n :date-time)
                                 :up-time (t/in-seconds (t/interval boot-time n)))
-                         (select-keys env [:service-id :hostname])))))
-   )
+                         (select-keys env [:service-id :hostname]))))))
+
+(defn get-db-health [health {:keys [response]}]
+   (d/chain
+    (get-health health)
+    #(if (= (:health %1) "HEALTHY")
+               (assoc response :body %1 :status 200)
+               (assoc response :body %1 :status 503))))
 
