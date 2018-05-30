@@ -27,27 +27,27 @@
    (map->Health {:env env})
    [:db]))
 
-(defn get-health [{:keys [db env boot-time rt]}]
-  (let [n (l/local-now)]
-    (-> (get-db-health db)
-        (d/chain #(if (or
-                       (nil? %1)
-                       (empty? %1))
-                    {:health "UNHEALTHY"}
-                    {:health "HEALTHY" :db %1}))
-        (d/catch (fn [e] {:health "UNHEALTHY" :db (.getMessage e)}))
-        (d/chain #(merge (assoc %
-                                :free-memory (.freeMemory rt)
-                                :total-memory (.totalMemory rt)
-                                :boot-time (l/format-local-time boot-time :date-time)
-                                :current-time (l/format-local-time n :date-time)
-                                :up-time (t/in-seconds (t/interval boot-time n)))
-                         (select-keys env [:service-id :hostname]))))))
-
-(defn get-db-health [health {:keys [response]}]
+(defn get-health
+  ([{:keys [db env boot-time rt]}]
+   (let [n (l/local-now)]
+     (-> (get-db-health db)
+         (d/chain #(if (or
+                        (nil? %1)
+                        (empty? %1))
+                     {:health "UNHEALTHY"}
+                     {:health "HEALTHY" :db %1}))
+         (d/catch (fn [e] {:health "UNHEALTHY" :db (.getMessage e)}))
+         (d/chain #(merge (assoc %
+                                 :free-memory (.freeMemory rt)
+                                 :total-memory (.totalMemory rt)
+                                 :boot-time (l/format-local-time boot-time :date-time)
+                                 :current-time (l/format-local-time n :date-time)
+                                 :up-time (t/in-seconds (t/interval boot-time n)))
+                          (select-keys env [:service-id :hostname]))))))
+  ([health {:keys [response]}]
    (d/chain
     (get-health health)
     #(if (= (:health %1) "HEALTHY")
-               (assoc response :body %1 :status 200)
-               (assoc response :body %1 :status 503))))
+       (assoc response :body %1 :status 200)
+       (assoc response :body %1 :status 503)))))
 

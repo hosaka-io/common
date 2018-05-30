@@ -1,4 +1,4 @@
-(defproject io.hosaka/common "1.1.2"
+(defproject io.hosaka/common "1.1.3"
   :description "Hosaka common library"
   :url "https://github.com/hosaka-io/common"
   :repositories ^:replace [["releases" {:url  "https://artifactory.i.hosaka.io/artifactory/libs-release"
