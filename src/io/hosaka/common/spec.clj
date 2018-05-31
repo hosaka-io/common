@@ -11,5 +11,5 @@
 (s/def ::hex (s/and ::non-empty-string #(re-matches hex-regex %)))
 
 (def uuid-regex #"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
-(s/def ::uuid (s/or #(instance? java.util.UUID %) (s/and ::non-empty-string #(re-matches uuid-regex %))))
+(s/def ::uuid (s/or :uuid #(instance? java.util.UUID %) :non-empty-string (s/and ::non-empty-string #(re-matches uuid-regex %))))
 
