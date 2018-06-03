@@ -25,4 +25,5 @@
 (defn validate [{:keys [keychain-url]} jwt]
   (->
    (http/post keychain-url {:body jwt :headers {"content-type" "text/plain"}})
-   (d/chain :body parse-stream)))
+   (d/chain :body parse-stream)
+   (d/catch #(throw (Exception. (-> % ex-data :body parse-stream :msg))))))
