@@ -26,4 +26,7 @@
   (->
    (http/post keychain-url {:body jwt :headers {"content-type" "text/plain"}})
    (d/chain :body parse-stream)
-   (d/catch #(throw (Exception. (-> % ex-data :body parse-stream :msg))))))
+   (d/catch
+       (fn [ex]
+         (let [er (-> ex ex-data :body parse-stream)]
+           (ex-info (:msg er) er ex ))))))
