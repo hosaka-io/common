@@ -29,4 +29,4 @@
    (d/catch
        (fn [ex]
          (let [er (-> ex ex-data :body parse-stream)]
-           (ex-info (:msg er) er ex ))))))
+           (throw (ex-info (:msg er) er ex )))))))
